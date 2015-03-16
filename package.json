@@ -1,0 +1,15 @@
+{
+  "name": "xmd",
+  "version": "0.0.0",
+  "description": "extensible markdown",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Howard Yeh",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^2.1.1",
+    "mocha": "^2.2.1"
+  }
+}
