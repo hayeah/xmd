@@ -38,9 +38,7 @@ describe("Tag",() => {
         if(typeof node === 'string') {
           return "#" + node;
         } else {
-          var tag = new Tag("<" + node.name);
-          tag.children = recur();
-          return tag;
+          return new Tag("<" + node.name,recur());
         }
       });
 

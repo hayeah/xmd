@@ -6,9 +6,9 @@ class Tag {
   name: string;
   children: Array<Node>;
 
-  constructor(name: string) {
+  constructor(name: string, children?: Node[]) {
     this.name = name;
-    this.children = [];
+    this.children = children || [];
   }
 
   add(child: Node) {
