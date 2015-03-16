@@ -61,4 +61,21 @@ describe("Tag",() => {
       });
     });
   });
+
+  describe("#xml",() => {
+    it("generates xml", () => {
+      var tag = new Tag("doc");
+      var a = new Tag("a");
+      a.add("a1"); a.add("a2");
+      var aa = new Tag("aa");
+      aa.add("a3");
+      a.add(aa);
+
+      var b = new Tag("b");
+      b.add("b1");
+      tag.add(a); tag.add(b);
+
+      console.log("xml:\n",tag.xml({indent: 4}));
+    });
+  });
 });

@@ -50,4 +50,54 @@ class Tag {
       }
     }
   }
+
+  walk2(f: (node: Node, recur?: () => void) => void) {
+    f(this,() => {
+      var nodes = this.children;
+      for (var i = 0; i < nodes.length; i++) {
+        var node = nodes[i];
+        if(typeof node === 'string') {
+          f(node);
+        } else {
+          node.walk2(f);
+        }
+      }
+    });
+  }
+
+  xml(opts?: XMLOutputOptions): string {
+    var xml = "";
+    if(opts == null) {
+      opts = {};
+    }
+
+    var pretty = opts.indent != null;
+    var indentSpaces = opts.indent || 2;
+    var indent = 0;
+    this.walk2((node,recur) => {
+      if(typeof node === 'string') {
+        output(node);
+      } else {
+        output(`<${node.name}>`);
+        indent += indentSpaces;
+        recur();
+        indent -= indentSpaces;
+        output(`</${node.name}>`)
+      }
+    });
+
+    function output(str) {
+      if(pretty && indent > 0) {
+        xml += spaces.substr(0,indent);
+      }
+      xml += str;
+      xml += "\n"
+    }
+    return xml;
+  }
 }
+
+interface XMLOutputOptions {
+  indent?: number;
+}
+var spaces = "                                                                                                         ";
