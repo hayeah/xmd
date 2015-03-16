@@ -1,9 +1,6 @@
 ///<reference path="./test.d.ts" />
 
 import LineReader = require("./LineReader");
-import chai = require("chai");
-
-var assert = chai.assert;
 
 describe("LineReader",function() {
   it("reads line in a document",function() {

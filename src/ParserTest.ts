@@ -1,7 +1,5 @@
 ///<reference path="./test.d.ts" />
 import Parser = require("./Parser");
-import chai = require("chai");
-var assert = chai.assert;
 
 describe("Parser",function() {
 
