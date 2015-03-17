@@ -35,23 +35,7 @@ class Tag {
     });
   }
 
-  walk(f: (node: Node) => void) {
-    f(this);
-
-    var nodes = this.children;
-    for (var i = 0; i < nodes.length; i++) {
-      var node = nodes[i];
-      if(typeof node === 'string') {
-        f(node);
-      } else {
-        if(node.children.length > 0) {
-          node.walk(f);
-        }
-      }
-    }
-  }
-
-  walk2(f: (node: Node, recur?: () => void) => void) {
+  walk(f: (node: Node, recur?: () => void) => void) {
     f(this,() => {
       var nodes = this.children;
       for (var i = 0; i < nodes.length; i++) {
@@ -59,7 +43,7 @@ class Tag {
         if(typeof node === 'string') {
           f(node);
         } else {
-          node.walk2(f);
+          node.walk(f);
         }
       }
     });
@@ -74,7 +58,7 @@ class Tag {
     var pretty = opts.indent != null;
     var indentSpaces = opts.indent || 2;
     var indent = 0;
-    this.walk2((node,recur) => {
+    this.walk((node,recur) => {
       if(typeof node === 'string') {
         output(node);
       } else {

@@ -18,8 +18,11 @@ describe("Tag",() => {
       tag.add(b);
       tag.add("c");
       var nodes = [];
-      tag.walk(function (node) {
+      tag.walk(function (node,recur) {
           nodes.push(node);
+          if(recur) {
+            recur();
+          }
       });
       assert.deepEqual([tag, a, "a1", "a2", b, "b1", "b2", "c"], nodes);
     });
