@@ -49,6 +49,14 @@ class Tag {
     });
   }
 
+  json(opts?: {indent?: number}): string {
+    if(opts == null) {
+      opts = {};
+    }
+    var indent = opts.indent || 0;
+    return JSON.stringify(this,null,indent);
+  }
+
   xml(opts?: XMLOutputOptions): string {
     var xml = "";
     if(opts == null) {

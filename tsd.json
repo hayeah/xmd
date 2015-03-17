@@ -10,6 +10,12 @@
     },
     "chai/chai.d.ts": {
       "commit": "95d860879fb90c405aeb13eea7b8564f9c0df2bf"
+    },
+    "minimist/minimist.d.ts": {
+      "commit": "95d860879fb90c405aeb13eea7b8564f9c0df2bf"
+    },
+    "node/node.d.ts": {
+      "commit": "95d860879fb90c405aeb13eea7b8564f9c0df2bf"
     }
   }
 }

@@ -78,7 +78,7 @@ describe("Tag",() => {
       b.add("b1");
       tag.add(a); tag.add(b);
 
-      console.log("xml:\n",tag.xml({indent: 4}));
+      // console.log("xml:\n",tag.xml({indent: 4}));
     });
   });
 });
