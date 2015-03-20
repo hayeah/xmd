@@ -121,15 +121,6 @@ describe("TextParser",() => {
       });
     });
 
-    // should be parser test
-    // it("throws error is nesting is imbalanced",() => {
-    //   assert.throw(() => {
-    //     parseInlineTag("[foo]]")
-    //   });
-
-    //   parseInlineTag("[foo][hello []")
-    // })
-
     it("parses inline tag that has no content",() => {
       parseInlineTag("[foo]",{
         "name": "foo",
@@ -193,18 +184,32 @@ trailing foo]
   });
 
   describe("#parse",() => {
-    function parse(src:string,expected:any,show?:boolean): string {
+    function parse(src:string,expected?:any,show?:boolean): string {
       var parser = new TextParser(src);
       var result = parser.parse();
       if(show) {
         console.log(JSON.stringify(result,null,2))
       }
-      assertParse(result,expected);
+
+      if(expected != null) {
+        assertParse(result,expected);
+      }
+
       return parser.residue();
     }
 
+    it("throws error is inline tag nesting is imbalanced",() => {
+      assert.throw(() => {
+        parse("[foo]]")
+      });
+
+      assert.throw(() => {
+        parse("[foo][hello [] lala")
+      });
+    })
+
     it("returns array of nodes",() => {
-      parse("text*bold*_itatlic_`code`text",
+      parse("text*bold*text",
         [
           "text",
           {
@@ -213,22 +218,12 @@ trailing foo]
               "bold"
             ]
           },
-          {
-            "name": "_",
-            "children": [
-              "itatlic"
-            ]
-          },
-          {
-            "name": "`",
-            "children": [
-              "code"
-            ]
-          },
           "text"
         ]
       );
     });
+
+
   });
 
 });
