@@ -1,19 +1,16 @@
 export = TextParser;
 
 import Tag = require("./Tag");
-
+import Reader = require("./Reader");
 type Node = Tag | string;
 
-class TextParser {
-  private pos: number;
-
-  constructor(private src: string) {
-    this.pos = 0;
+class TextParser extends Reader {
+  parse(): Array<Node> {
+    return this._parse(false);
   }
 
-  parse(): Array<Node> {
+  _parse(recursive:boolean): Array<Node> {
     var nodes: Array<Node> = [];
-    // accumulate content string
 
     while(true) {
       var str = this.readString();
@@ -21,35 +18,63 @@ class TextParser {
         nodes.push(str);
       }
 
-      if(this.src[this.pos] == null) {
+      if(this.eof) {
         break;
       }
 
-      var c = this.src[this.pos];
+      var c = this.ch;
       switch(c) {
         case "*": // `_
         case "_":
         case "`":
-          var tag = this.readDelimitedTag(c);
+          var tag = this.parseDelimitedTag(c);
           nodes.push(tag);
           break;
-        // case "`":
-        // case "_":
-        //   break;
-        // case "[":
-        //   break;
-        // case "]":
-        //   break;
+        case "[":
+          nodes.push(this.parseInlineTag());
+          break;
+        case "]":
+          // throws error if parsing is not in recursive mode
+          // allow the recursive caller to consume "]"
+          if(!recursive) {
+            throw "excess ]";
+          }
+          return nodes;
         default:
           throw "not implemented";
       }
     }
 
+    if(recursive) {
+      throw "expecting ]";
+    }
+
     return nodes;
   }
 
-  readInlineTag(): Tag {
+  parseInlineTag(): Tag {
+    // parse tag
+    this.want("[");
+    // parse tag name
+    var tagName = this.readUpto("]");
+    if(tagName == "") {
+      throw "Inline tag cannot have empty name";
+    }
+    // wantUntil((c) => { return c == " " || c == "]"});
+    // readSpaces();
+    this.want("]");
 
+    var nodes: Array<Node>;
+    // tag content is optional
+    if(this.ch == "[") {
+      this.want("[");
+      nodes = this._parse(/*recursive=*/true);
+      this.want("]");
+    } else {
+      nodes = [];
+    }
+
+    return new Tag(tagName,nodes)
   }
 
   /**
@@ -58,32 +83,33 @@ class TextParser {
   readString(): string {
     var acc = "";
     while(true) {
-      var c = this.src[this.pos];
-      if(c == null) {
+      if(this.eof) {
         break;
       }
 
+      var c = this.ch;
       if(c === "*" || c === "[" || c === "]" || c === "`" || c === "_") {
         break;
       }
 
       if(c == "\\") {
-        this.pos += 1;
-        c = this.src[this.pos];
-        if(c == null) {
+        this.read();
+        if(this.eof) {
           throw "Axpecting an escaped char, but end of file";
         }
+        c = this.ch;
       }
 
-      this.pos += 1;
+      this.read();
       acc += c;
+
     }
 
     return acc;
   }
 
   // Read content delimited by asterisks.
-  readDelimitedTag(delimiter:string): Tag {
+  parseDelimitedTag(delimiter:string): Tag {
     var content = this.readDelimited(delimiter);
     if(content == null) {
       // TODO: error should contain the context of the bold starting.
@@ -91,23 +117,5 @@ class TextParser {
     }
     // TODO: it should be error if tag content is empty?
     return new Tag(delimiter, [content]);
-  }
-
-  // <s>content string<s>
-  readDelimited(s:string): string/*null*/ {
-    // skip the delimiter opening
-    this.pos += s.length;
-    var endPos = this.src.indexOf(s,this.pos)
-    if(endPos == -1) {
-      return null;
-    }
-    var content = this.src.slice(this.pos,endPos);
-    this.pos = endPos += s.length;
-    return content;
-  }
-
-  //
-  residue(): string {
-    return this.src.slice(this.pos);
   }
 }

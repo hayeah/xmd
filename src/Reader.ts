@@ -1,17 +1,18 @@
 export = Reader;
 class Reader {
   src: string;
-  private at: number;
-  // line count
-  private line: number;
-  // column count
-  private col: number;
+  at: number;
+  // // line count
+  // private line: number;
+  // // column count
+  // private col: number;
+
   eof: boolean;
   ch: string;
 
   constructor(src: string) {
     this.src = src;
-    this.at = this.line = this.col = 0;
+    this.at = 0;
     this.ch = this.src[this.at];
     this.eof = this.ch == null;
 

@@ -2,30 +2,11 @@
 
 import TextParser = require("./TextParser");
 
+function assertParse(a,b) {
+  assert.deepEqual(JSON.parse(JSON.stringify(a)),b);
+}
+
 describe("TextParser",() => {
-  describe("#readDelimited", () => {
-    function readDelimited(src: string, delimiter: string): string {
-      var p = new TextParser(src);
-      return p.readDelimited(delimiter);
-    }
-
-    it("returns the content string between delimiters", () => {
-      assert.equal(readDelimited("*content*","*"),"content");
-      assert.equal(readDelimited("**","*"),"");
-      assert.equal(readDelimited("**content**","**"),"content");
-    });
-
-    it("returns null if end delimiter cannot be found", () => {
-      assert.isNull(readDelimited("*content","*"));
-    });
-
-    it("advances parser's position", () => {
-      var p = new TextParser("*content*more stuff");
-      p.readDelimited("*");
-      assert.equal(p.residue(),"more stuff");
-    });
-  });
-
   describe("#readString",() => {
     function readString(src: string): string {
       var p = new TextParser(src);
@@ -34,6 +15,7 @@ describe("TextParser",() => {
 
     it("reads all the way to the end",() => {
       assert.equal(readString(""),"");
+      assert.equal(readString(" ")," ");
       assert.equal(readString(" abcdefg abcdefg ")," abcdefg abcdefg ");
     });
 
@@ -63,24 +45,107 @@ describe("TextParser",() => {
     });
   });
 
-  describe("#parse",() => {
-    function parse(src:string) {
-      var p = new TextParser(src);
-      var r = p.parse();
-      return r;
+  describe("#parseInlineTag",() => {
+    function parseInlineTag(src,expected?): string {
+      var parser = new TextParser(src);
+      var result = parser.parseInlineTag();
+      // console.log(JSON.stringify(result,null,2));
+      if(expected != null) {
+        assertParse(result,expected);
+      }
+      return parser.residue();
     }
 
-    function test(src:string,expected:any,show?:boolean) {
-      var nodes = parse(src);
-      var result = JSON.parse(JSON.stringify(nodes))
+    it("throws error if tag name is empty",() => {
+      assert.throw(() => {
+        parseInlineTag("[][hello]");
+      });
+    });
+
+    // should be parser test
+    // it("throws error is nesting is imbalanced",() => {
+    //   assert.throw(() => {
+    //     parseInlineTag("[foo]]")
+    //   });
+
+    //   parseInlineTag("[foo][hello []")
+    // })
+
+    it("parses inline tag that has no content",() => {
+      parseInlineTag("[foo]",{
+        "name": "foo",
+        "children": []
+      });
+
+      parseInlineTag("[foo][]",{
+        "name": "foo",
+        "children": []
+      });
+    });
+
+    it("parses inline tag that has content",() => {
+      parseInlineTag("[foo][ ]",{
+        "name": "foo",
+        "children": [" "]
+      });
+
+      parseInlineTag("[foo][content of foo]",{
+        "name": "foo",
+        "children": [
+          "content of foo"
+        ]
+      });
+    });
+
+    it("parses nesting tags recursively",() => {
+      var tag =
+`
+[foo][
+leading *foo* content
+[bar][content of bar with [qux]]
+trailing foo]
+`.trim();
+
+      parseInlineTag(tag,{
+        "name": "foo",
+        "children": [
+          "\nleading ",
+          {
+            "name": "*",
+            "children": [
+              "foo"
+            ]
+          },
+          " content\n",
+          {
+            "name": "bar",
+            "children": [
+              "content of bar with ",
+              {
+                "name": "qux",
+                "children": []
+              }
+            ]
+          },
+          "\ntrailing foo"
+        ]
+      });
+    });
+  });
+
+  describe("#parse",() => {
+    function parse(src:string,expected:any,show?:boolean): string {
+      var parser = new TextParser(src);
+      var result = parser.parse();
       if(show) {
-        console.log(JSON.stringify(nodes,null,2))
+        console.log(JSON.stringify(result,null,2))
       }
-      assert.deepEqual(result,expected);
+      assertParse(result,expected);
+      return parser.residue();
     }
 
     it("returns array of nodes",() => {
-      test("text*bold*_itatlic_`code`text",
+      parse("text*bold*_itatlic_`code`text",
         [
           "text",
           {
@@ -106,4 +171,5 @@ describe("TextParser",() => {
       );
     });
   });
+
 });

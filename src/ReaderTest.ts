@@ -3,6 +3,33 @@ import Reader = require("./Reader");
 
 describe("Reader",() => {
 
+  describe("#read",() => {
+    var reader: Reader;
+
+    beforeEach(() => {
+      reader = new Reader("abc");
+    });
+
+    function read(expect?: string): string {
+      var result = reader.read();
+      if(expect != null) {
+        assert.equal(result,expect);
+      }
+      return reader.residue();
+    }
+
+    it("returns the input characters in order",() => {
+      assert.isFalse(reader.eof);
+      assert.equal(reader.ch,"a");
+      read("a");
+      assert.equal(reader.ch,"b");
+      read("b");
+      assert.equal(reader.ch,"c");
+      read("c");
+      assert.isTrue(reader.eof);
+    });
+  });
+
   describe("#wantAll",() => {
     function wantAll(src:string,pat:string): string {
       var r = new Reader(src);
