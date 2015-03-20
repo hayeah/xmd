@@ -27,7 +27,7 @@ class TextParser extends Reader {
         case "*": // `_
         case "_":
         case "`":
-          var tag = this.parseDelimitedTag(c);
+          var tag = this.parseDelimitedTag();
           nodes.push(tag);
           break;
         case "[":
@@ -109,12 +109,21 @@ class TextParser extends Reader {
   }
 
   // Read content delimited by asterisks.
-  parseDelimitedTag(delimiter:string): Tag {
+  parseDelimitedTag(): Tag {
+    var delimiter = this.ch;
+    if(this.peek(1) === '`') {
+      delimiter = '``'
+    }
     var content = this.readDelimited(delimiter);
     if(content == null) {
       // TODO: error should contain the context of the bold starting.
       throw "could not find end of tag delimited by";
     }
+
+    if(content == "") {
+      throw `Content between #{delimiter} cannot be empty`;
+    }
+
     // TODO: it should be error if tag content is empty?
     return new Tag(delimiter, [content]);
   }

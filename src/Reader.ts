@@ -29,6 +29,10 @@ class Reader {
     return c;
   }
 
+  peek(n:number): string {
+    return this.src[this.at+n];
+  }
+
   setAt(at: number) {
     this.at = at;
     this.ch = this.src[this.at];

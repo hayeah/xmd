@@ -45,6 +45,65 @@ describe("TextParser",() => {
     });
   });
 
+  describe("#parseDelimitedTag", () => {
+    function parseDelimitedTag(src: string,expected?): string {
+      var parser = new TextParser(src);
+      var result = parser.parseDelimitedTag();
+      // console.log(JSON.stringify(result,null,2));
+      if(expected != null) {
+        assertParse(result,expected);
+      }
+      return parser.residue();
+    }
+
+    it("throws error if delimited content is empty",() => {
+      assert.throw(() => {
+        parseDelimitedTag("**");
+      });
+    });
+
+    it("parses literals denoted by reserved chars",() => {
+      parseDelimitedTag("*content*",{
+        "name": "*",
+        "children": [
+          "content"
+        ]
+      });
+
+      parseDelimitedTag("_content_",{
+        "name": "_",
+        "children": [
+          "content"
+        ]
+      });
+    });
+
+    it("treats `` and ` two different delimiters",() => {
+      parseDelimitedTag("`content`",{
+        "name": "`",
+        "children": [
+          "content"
+        ]
+      });
+
+      parseDelimitedTag("``content``",{
+        "name": "``",
+        "children": [
+          "content"
+        ]
+      });
+    });
+
+    it("ignores nestings",() => {
+      parseDelimitedTag("_*content*_",{
+        "name": "_",
+        "children": [
+          "*content*"
+        ]
+      });
+    });
+  });
+
   describe("#parseInlineTag",() => {
     function parseInlineTag(src,expected?): string {
       var parser = new TextParser(src);
