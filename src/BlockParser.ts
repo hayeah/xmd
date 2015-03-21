@@ -113,18 +113,44 @@ class BlockParser extends Reader {
     }
   }
 
+  /*
+   * Read a symbol at current position.
+   *
+   * Symbo is used as tag names, tag arguments, and heredoc tokens.
+   *
+   * @grammar <symbol>
+   */
+  readSymbol(): string {
+    // TODO
+    if(this.ch === '"') {
+      throw "Quoted symbol not yet implemented"
+    } else {
+      return this.readIf((c) => {
+        return !(
+          c == " "  ||
+          c == "\n" ||
+          c == "["  ||
+          c == "]"  ||
+          c == "\"" ||
+          c == "="
+          );
+      });
+    }
+  }
+
   parseTag(indent: number): Tag {
     this.wantIndent(indent);
     this.want("#");
     // get tagname
-    var tagName = this.readIf((c) => {return c != "\n" && c != "[" && c != " "});
+    var tagName = this.readSymbol();
+
+    // TODO argument parsing
 
     if(this.ch == "\n") {
       this.read();
+    } else {
+      // TODO tag inline content
     }
-
-    // TODO tag inline content
-    // TODO argument parsing
 
     var tag = new Tag(tagName);
 
@@ -182,7 +208,7 @@ class BlockParser extends Reader {
   /*
    * Read a line at a specified indentation level.
    */
-  readLine(indent: number): string {
+  readLine(indent:number=0): string {
     // consume indentation
     this.wantIndent(indent);
 
@@ -196,7 +222,7 @@ class BlockParser extends Reader {
     return line;
   }
 
-  wantIndent(indent: number) {
+  wantIndent(indent:number=0) {
     for(;indent > 0; indent--) {
       if(this.ch != " ") {
         throw `Expects indent level: ${indent}`
@@ -205,18 +231,58 @@ class BlockParser extends Reader {
     }
   }
 
-  // parseCodeHereDoc(): Tag {
-  //   var heretoken: string;
-  //   var heredone = "```" + heretoken; // e.g. ```HERE
-  //   readLine();
+  /*
+   * Heredoc for quoted Code.
+   *
+   * Grammar: <code-heredoc(n)>
+   */
+  parseCodeHeredoc(indent:number=0): Tag {
+    var content = this.parseHeredoc("```");
+    if(content === "") {
+      return new Tag("```");
+    } else {
+      return new Tag("```",[content]);
+    }
+  }
 
-  //   // error if indentation is less than heredoc indentation.
+  /*
+   * Heredoc for quoted Code.
+   *
+   * Grammar: <string-heredoc(n)>
+   */
+  parseStringHeredoc(indent:number=0): string {
+    return this.parseHeredoc('"""');
+  }
 
+  parseHeredoc(delimiter:string,indent:number=0): string {
+    this.wantIndent(indent);
+    this.wantAll(delimiter);
 
-  //   if(line.content.rightTrim() == heredoc)
-  //     stop
+    // TODO arguments
 
-  // }
+    var symbol = this.readSymbol();
+    var heretoken = delimiter + symbol;
+
+    this.want("\n");
+
+    var lines = [];
+    while(true) {
+      if(this.eof) {
+        throw "EOF while parsing heredoc";
+      }
+
+      var line = this.readLine(indent);
+      if(line.indexOf(heretoken) === 0 &&
+         // allow spaces followinwg there heredoc close
+         line.substr(heretoken.length).trim() === "") {
+        break;
+      }
+
+      lines.push(line);
+    }
+
+    return lines.join("\n");
+  }
 
   // parseHereDoc(): string {
   //   // same same, different delimiter

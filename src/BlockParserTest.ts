@@ -136,10 +136,82 @@ describe("BlockParser",() => {
     });
   });
 
+  describe("#parseCodeHeredoc",() => {
+    var parseCodeHeredoc = parserTest(BlockParser,"parseCodeHeredoc",{
+      assert: assertParse,
+      // show:true
+    });
+
+    it("throws error if heredoc is not closed")
+
+    it("parses empty heredoc",() => {
+      var doc;
+      doc = "```\n```";
+      parseCodeHeredoc(doc,{
+        "name": "```",
+        "children": []
+      });
+    });
+
+    it("parses multiple lines of quoted text",() => {
+      var doc = "```\n  \n\n  a\n  b\n  c\n```";
+      parseCodeHeredoc(doc,{
+        "name": "```",
+        "children": [
+          "  \n\n  a\n  b\n  c"
+        ]
+      });
+    });
+
+    it("allows closing to be trailed with space",() => {
+      var doc;
+      doc = "```\ncontent\n```   \n";
+      parseCodeHeredoc(doc,{
+        "name": "```",
+        "children": [
+          "content"
+        ]
+      });
+
+      doc = "```HERE\ncontent\n```HERE   \n";
+      parseCodeHeredoc(doc,{
+        "name": "```",
+        "children": [
+          "content"
+        ]
+      });
+    });
+
+    it("closes with user defined heredoc token",() => {
+      var doc = "```FOOBAR\ncontent\n```\n```FOOBAR\n";
+      parseCodeHeredoc(doc,{
+        "name": "```",
+        "children": [
+          "content\n```"
+        ]
+      });
+    });
+
+    it("advances reader position",() => {
+      var doc = "```HERE\ncontent\n```HERE\nmore";
+      var _ = parseCodeHeredoc(doc,undefined);
+      assert.equal(_,"more");
+    });
+  });
+
+  describe("#parseStringHeredoc", () => {
+    var parseStringHeredoc = parserTest(BlockParser,"parseStringHeredoc");
+    it("parses string quoted by heredoc",() => {
+      var doc = '"""HERE\ncontent\n"""HERE\nmore';
+      var _ = parseStringHeredoc(doc,"content");
+      assert.equal(_,"more");
+    });
+  });
+
   describe("#parseTag",() => {
     var parseTag = parserTest(BlockParser,"parseTag",{
       assert: assertParse,
-      show: true
+      // show: true
     });
 
     it("parses tag that has no content",() => {
