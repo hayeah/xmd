@@ -16,6 +16,9 @@ interface MainArgs extends minimist.ParsedArgs {
   help?: boolean;
 
   pretty?: boolean;
+
+  // ast mode. output parsed ast in JSON with no transform
+  ast?: boolean;
 }
 
 function help() {
@@ -25,6 +28,7 @@ xmd [--json | --j] [xmdfile]
 
 Renders extensible markdown to xml (defualt) or json.
 
+  --ast           output parsed document in JSON
   -j, --json      output JSON
   -p, --pretty    pretty print the output
   -h, --help      show help
@@ -60,11 +64,14 @@ function main() {
     if(args.pretty) {
       opts.indent = 4;
     }
+
+
     if(err) {
       console.log(err);
       process.exit(1);
     } else {
-      if(args.json) {
+      if(args.json || args.ast) {
+        opts.raw = !!args.ast;
         output = xmd.renderJSON(src,opts);
       } else {
         output = xmd.renderXML(src,opts);

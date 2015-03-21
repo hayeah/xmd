@@ -1,20 +1,27 @@
 
-import Parser = require("./Parser");
+import Parser = require("./BlockParser");
 import Tag = require("./Tag");
 
 export function parse(src: string): Tag {
   var parser = new Parser(src);
   var doc = parser.parse();
-  return xmd2html(doc);
+  return doc;
 }
 
-export function renderJSON(src: string, opts?: {indent?: number}): string {
+export function renderJSON(src: string, opts?: {indent?: number; raw?: boolean}): string {
+  if(opts == null) {
+    opts = {};
+  }
   var doc = parse(src);
+  opts.raw = !!opts.raw;
+  if(!opts.raw) {
+    doc = xmd2html(doc);
+  }
   return doc.json(opts);
 }
 
 export function renderXML(src: string, opts?: {indent?: number}): string {
-  var doc = parse(src);
+  var doc = xmd2html(parse(src));
   return doc.xml(opts);
 }
 
