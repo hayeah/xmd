@@ -143,8 +143,14 @@ class BlockParser extends Reader {
     this.want("#");
     // get tagname
     var tagName = this.readSymbol();
+    var tag = new Tag(tagName);
 
-    // TODO argument parsing
+    if(this.ch == "[") {
+      this.want("[");
+      var args = this.parseArguments();
+      tag.setInfo(args);
+      this.want("]");
+    }
 
     if(this.ch == "\n") {
       this.read();
@@ -152,7 +158,7 @@ class BlockParser extends Reader {
       // TODO tag inline content
     }
 
-    var tag = new Tag(tagName);
+
 
     this.skipEmptyLines();
     if(this.eof) {
@@ -237,12 +243,7 @@ class BlockParser extends Reader {
    * Grammar: <code-heredoc(n)>
    */
   parseCodeHeredoc(indent:number=0): Tag {
-    var content = this.parseHeredoc("```");
-    if(content === "") {
-      return new Tag("```");
-    } else {
-      return new Tag("```",[content]);
-    }
+    return this.parseHeredoc("```");
   }
 
   /*
@@ -250,20 +251,26 @@ class BlockParser extends Reader {
    *
    * Grammar: <string-heredoc(n)>
    */
-  parseStringHeredoc(indent:number=0): string {
+  parseStringHeredoc(indent:number=0): Tag {
     return this.parseHeredoc('"""');
   }
 
-  parseHeredoc(delimiter:string,indent:number=0): string {
+  parseHeredoc(delimiter:string,indent:number=0): Tag {
+    var tag = new Tag(delimiter);
     this.wantIndent(indent);
     this.wantAll(delimiter);
 
-    // TODO arguments
+    if(this.ch == "[") {
+      this.want("[");
+      var args = this.parseArguments();
+      tag.setInfo(args);
+      this.want("]");
+    }
 
     var symbol = this.readSymbol();
-    var heretoken = delimiter + symbol;
-
     this.want("\n");
+
+    var heretoken = delimiter + symbol;
 
     var lines = [];
     while(true) {
@@ -281,11 +288,51 @@ class BlockParser extends Reader {
       lines.push(line);
     }
 
-    return lines.join("\n");
+    var content = lines.join("\n");
+    if(content != "") {
+      tag.children = [content];
+    }
+
+    return tag;
   }
 
-  // parseHereDoc(): string {
-  //   // same same, different delimiter
-  // }
+  /*
+   * Parses a delimited list of arguments. Arguments list should end with `]`
+   *
+   * Grammar: <arguments>
+   */
+  parseArguments(): TagInfo  {
+    // must be on one-line
+    // stops when it sees "]"
+    var opts: {[key:string]: string} = {};
+    var args = [];
 
+    while(true) {
+      this.readIf((c) => {return c == " "});
+
+      if(this.eof || this.ch === "\n" || this.ch === "]") {
+        break;
+      }
+
+      var arg = this.readSymbol();
+      if(arg === "") {
+        break;
+      }
+      if(this.ch === "=") {
+        this.want("=");
+        var key = arg;
+        var val = this.readSymbol();
+        opts[key] = val;
+      } else {
+        args.push(arg);
+      }
+    }
+
+    return {opts: opts, args: args};
+  }
+}
+
+interface TagInfo {
+  opts: {[key:string]: string};
+  args: string[];
 }

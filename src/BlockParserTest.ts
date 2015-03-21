@@ -136,6 +136,35 @@ describe("BlockParser",() => {
     });
   });
 
+  describe("#parseArguments",() => {
+    var parseArguments = parserTest(BlockParser,"parseArguments",{
+      // show: true
+    });
+
+    it("throws error if = appears on its own");
+
+    it("parses empty arguments",() => {
+      parseArguments("",{
+        "opts": {},
+        "args": []
+      });
+    });
+
+    it("parses arguments",() => {
+      var _ = parseArguments("  a b=bar c  ]more",{
+        "opts": {
+          "b": "bar"
+        },
+        "args": [
+          "a",
+          "c"
+        ]
+      });
+
+      assert.equal(_,"]more")
+    });
+  });
+
   describe("#parseCodeHeredoc",() => {
     var parseCodeHeredoc = parserTest(BlockParser,"parseCodeHeredoc",{
       assert: assertParse,
@@ -192,6 +221,23 @@ describe("BlockParser",() => {
       });
     });
 
+    it("parses heredoc arguments",() => {
+      var doc = "```[a b=b c]HERE\ncontent\n```HERE\nmore";
+      var _ = parseCodeHeredoc(doc,{
+        "name": "```",
+        "children": [
+          "content"
+        ],
+        "opts": {
+          "b": "b"
+        },
+        "args": [
+          "a",
+          "c"
+        ]
+      });
+    });
+
     it("advances reader position",() => {
       var doc = "```HERE\ncontent\n```HERE\nmore";
       var _ = parseCodeHeredoc(doc,undefined);
@@ -200,10 +246,18 @@ describe("BlockParser",() => {
   });
 
   describe("#parseStringHeredoc", () => {
-    var parseStringHeredoc = parserTest(BlockParser,"parseStringHeredoc");
+    var parseStringHeredoc = parserTest(BlockParser,"parseStringHeredoc",{
+      assert: assertParse,
+      // show: true
+    });
     it("parses string quoted by heredoc",() => {
       var doc = '"""HERE\ncontent\n"""HERE\nmore';
-      var _ = parseStringHeredoc(doc,"content");
+      var _ = parseStringHeredoc(doc,{
+        "name": "\"\"\"",
+        "children": [
+          "content"
+        ]
+      });
       assert.equal(_,"more");
     });
   });
@@ -302,6 +356,20 @@ more content
       },0);
 
       assert.equal(_,"more content");
+    });
+
+    it("parses tag arguments",() => {
+      parseTag("#tag[a b=b c]",{
+        "name": "tag",
+        "children": [],
+        "opts": {
+          "b": "b"
+        },
+        "args": [
+          "a",
+          "c"
+          ]
+      });
     });
   });
 });

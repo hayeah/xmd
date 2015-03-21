@@ -2,13 +2,25 @@ export = Tag;
 
 type Node = Tag | string;
 
+interface TagInfo {
+  opts: {[key:string]: string};
+  args: string[];
+}
+
 class Tag {
   name: string;
   children: Array<Node>;
+  opts: {[key:string]: string};
+  args: string[];
 
   constructor(name: string, children?: Node[]) {
     this.name = name;
     this.children = children || [];
+  }
+
+  setInfo(info: TagInfo) {
+    this.opts = info.opts;
+    this.args = info.args;
   }
 
   add(child: Node) {
