@@ -109,9 +109,7 @@ describe("BlockParser",() => {
       var _ = readTextBlock(text,{
         "name": "p",
         "children": [
-          "abc",
-          "def",
-          "ghi"
+          "abc def ghi"
         ]
       },2);
       assert.equal(_,"");
@@ -122,8 +120,7 @@ describe("BlockParser",() => {
       var _ = readTextBlock(text,{
         "name": "p",
         "children": [
-          "abc",
-          "def"
+          "abc def",
         ]
       },2);
       assert.equal(_,"ghi");
@@ -134,8 +131,7 @@ describe("BlockParser",() => {
       var _ = readTextBlock(text,{
         "name": "p",
         "children": [
-          "abc",
-          "def"
+          "abc def",
         ]
       },2);
       assert.equal(_,"  \nghi");
@@ -168,8 +164,8 @@ describe("BlockParser",() => {
 
     it("parses empty arguments",() => {
       parseArguments("",{
-        "opts": {},
-        "args": []
+        "opts": null,
+        "args": null
       });
     });
 
@@ -331,15 +327,13 @@ describe("BlockParser",() => {
           {
             "name": "p",
             "children": [
-              "first block",
-              "of foo"
+              "first block of foo"
             ]
           },
           {
             "name": "p",
             "children": [
-              "second block",
-              "of foo"
+              "second block of foo"
             ]
           }
         ]
