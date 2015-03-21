@@ -3,8 +3,8 @@ export = Tag;
 type Node = Tag | string;
 
 interface TagInfo {
-  opts: {[key:string]: string};
-  args: string[];
+  opts?: {[key:string]: string};
+  args?: string[];
 }
 
 class Tag {
@@ -19,8 +19,13 @@ class Tag {
   }
 
   setInfo(info: TagInfo) {
-    this.opts = info.opts;
-    this.args = info.args;
+    if(info.opts) {
+      this.opts = info.opts;
+    }
+
+    if(info.args) {
+      this.args = info.args;
+    }
   }
 
   add(child: Node) {
