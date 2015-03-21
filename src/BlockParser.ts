@@ -1,6 +1,7 @@
 import Tag = require("./Tag");
 import Reader = require("./Reader");
 import LineType = require("./LineType");
+import TextParser = require("./TextParser");
 
 type Node = Tag | string;
 interface LineInfo {
@@ -221,7 +222,10 @@ class BlockParser extends Reader {
       continue;
     }
 
-    return new Tag("p",lines);
+    var content = lines.join(" ");
+    var tp = new TextParser(content);
+
+    return new Tag("p",tp.parse());
   }
 
   /*

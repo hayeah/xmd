@@ -43,7 +43,8 @@ function main() {
       "h": ["help"],
       "j": ["json"],
       "p": ["pretty"]
-    }
+    },
+    boolean: ["ast"]
   });
 
   if(args.h || args.help) {
