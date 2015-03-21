@@ -1,3 +1,5 @@
+import TagInfo = require("./TagInfo");
+
 export = Reader;
 class Reader {
   src: string;
@@ -95,6 +97,77 @@ class Reader {
       }
     }
     return acc;
+  }
+
+  /*
+   * Read a symbol at current position.
+   *
+   * Symbo is used as tag names, tag arguments, and heredoc tokens.
+   *
+   * @grammar <symbol>
+   */
+  readSymbol(): string {
+    // TODO
+    if(this.ch === '"') {
+      throw "Quoted symbol not yet implemented"
+    } else {
+      return this.readIf((c) => {
+        return !(
+          c == " "  ||
+          c == "\n" ||
+          c == "["  ||
+          c == "]"  ||
+          c == "\"" ||
+          c == "="
+          );
+      });
+    }
+  }
+
+  /*
+   * Parses a delimited list of arguments. Arguments list should end with `]`
+   *
+   * Grammar: <arguments>
+   */
+  parseArguments(): TagInfo  {
+    // must be on one-line
+    // stops when it sees "]"
+    var opts: {[key:string]: string} = {};
+    var args = [];
+
+    var hasKV = false;
+
+    while(true) {
+      this.readIf((c) => {return c == " "});
+
+      if(this.eof || this.ch === "\n" || this.ch === "]") {
+        break;
+      }
+
+      var arg = this.readSymbol();
+      if(arg === "") {
+        break;
+      }
+      if(this.ch === "=") {
+        this.want("=");
+        var key = arg;
+        var val = this.readSymbol();
+        opts[key] = val;
+        hasKV = true;
+      } else {
+        args.push(arg);
+      }
+    }
+
+    if(args.length == 0) {
+      args = null;
+    }
+
+    if(!hasKV) {
+      opts = null;
+    }
+
+    return {opts: opts, args: args};
   }
 
   residue(): string {

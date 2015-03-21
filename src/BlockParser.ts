@@ -127,31 +127,6 @@ class BlockParser extends Reader {
     }
   }
 
-  /*
-   * Read a symbol at current position.
-   *
-   * Symbo is used as tag names, tag arguments, and heredoc tokens.
-   *
-   * @grammar <symbol>
-   */
-  readSymbol(): string {
-    // TODO
-    if(this.ch === '"') {
-      throw "Quoted symbol not yet implemented"
-    } else {
-      return this.readIf((c) => {
-        return !(
-          c == " "  ||
-          c == "\n" ||
-          c == "["  ||
-          c == "]"  ||
-          c == "\"" ||
-          c == "="
-          );
-      });
-    }
-  }
-
   parseTag(indent: number): Tag {
     this.wantIndent(indent);
     this.want("#");
@@ -313,43 +288,5 @@ class BlockParser extends Reader {
     return tag;
   }
 
-  /*
-   * Parses a delimited list of arguments. Arguments list should end with `]`
-   *
-   * Grammar: <arguments>
-   */
-  parseArguments(): TagInfo  {
-    // must be on one-line
-    // stops when it sees "]"
-    var opts: {[key:string]: string} = {};
-    var args = [];
 
-    while(true) {
-      this.readIf((c) => {return c == " "});
-
-      if(this.eof || this.ch === "\n" || this.ch === "]") {
-        break;
-      }
-
-      var arg = this.readSymbol();
-      if(arg === "") {
-        break;
-      }
-      if(this.ch === "=") {
-        this.want("=");
-        var key = arg;
-        var val = this.readSymbol();
-        opts[key] = val;
-      } else {
-        args.push(arg);
-      }
-    }
-
-    return {opts: opts, args: args};
-  }
-}
-
-interface TagInfo {
-  opts: {[key:string]: string};
-  args: string[];
 }
