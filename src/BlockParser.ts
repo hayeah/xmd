@@ -56,12 +56,14 @@ class BlockParser extends Reader {
         type = LineType.tag;
       }
 
-      if(c == "`" && this.src.substr(i,3) == "```") {
-        type = LineType.hereCode;
-      }
-
-      if(c == "\"" && this.src.substr(i,3) == '"""') {
-        type = LineType.hereString;
+      if(c == "`") {
+        if(this.src.substr(i,3) == "```") {
+          if(this.src[i+3] === "`") { // ````
+            type = LineType.hereString;
+          } else {
+            type = LineType.hereCode;
+          }
+        }
       }
     }
 
@@ -244,7 +246,7 @@ class BlockParser extends Reader {
    * Grammar: <string-heredoc(n)>
    */
   parseStringHeredoc(indent:number=0): Tag {
-    return this.parseHeredoc('"""',indent);
+    return this.parseHeredoc('````',indent);
   }
 
   parseHeredoc(delimiter:string,indent:number=0): Tag {

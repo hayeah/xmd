@@ -73,7 +73,7 @@ describe("BlockParser",() => {
     });
 
     it("detects string heredoc",() => {
-      var info = lineInfo('  """');
+      var info = lineInfo('  ````');
       assert.equal(info.type, LineType.hereString);
       assert.equal(info.indent,2);
     });
@@ -149,9 +149,9 @@ describe("BlockParser",() => {
       _ = readTextBlock(text,undefined,2);
       assert.equal(_,"  ```");
 
-      text = '  abc\n  def\n  """';
+      text = '  abc\n  def\n  ````';
       _ = readTextBlock(text,undefined,2);
-      assert.equal(_,'  """');
+      assert.equal(_,'  ````');
     });
   });
 
@@ -285,9 +285,9 @@ describe("BlockParser",() => {
       // show: true
     });
     it("parses string quoted by heredoc",() => {
-      var doc = '"""HERE\ncontent\n"""HERE\nmore';
+      var doc = '````HERE\ncontent\n````HERE\nmore';
       var _ = parseStringHeredoc(doc,{
-        "name": "\"\"\"",
+        "name": "````",
         "children": [
           "content"
         ]

@@ -48,8 +48,8 @@
   <indent(n)> "```" <symbol>? <nl>
 
 <string-heredoc(n)> :=
-  <indent(n)> "```" <tag-arguments>? <symbol>? <nl>
+  <indent(n)> "````" <tag-arguments>? <symbol>? <nl>
   <indent(n)> <heredoc-content>
-  <indent(n)> "```" <symbol>? <nl>
+  <indent(n)> "````" <symbol>? <nl>
 
 ```
