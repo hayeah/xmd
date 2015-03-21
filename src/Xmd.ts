@@ -59,6 +59,36 @@ export function xmd2html(doc: Tag): Tag {
         case "#####": {
           return new Tag("h6",recur());
         }
+        case "*": {
+         return new Tag("b",recur());
+        }
+        case "_": {
+         return new Tag("i",recur());
+        }
+
+        case "`":
+        case "```": {
+         return new Tag("code",recur());
+        }
+        case "``": {
+         return node.children[0];
+        }
+        // [> http://google.com]
+        // [> http://google.com][The Google]
+        case ">": {
+          var href = node.args[0];
+          if(href == null) {
+            href = "";
+          }
+          var a = new Tag("a")
+          a.opts = {href: href};
+          if(node.children.length == 0) {
+            a.children = [href];
+          } else {
+            a.children = node.children;
+          }
+          return a;
+        }
         default: {
           return new Tag(node.name,recur());
         }
