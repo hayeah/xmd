@@ -70,7 +70,8 @@ export function xmd2html(doc: Tag): Tag {
         case "```": {
          return new Tag("code",recur());
         }
-        case "``": {
+        case "``":
+        case "````": {
          return node.children[0];
         }
         // [> http://google.com]
