@@ -1,5 +1,6 @@
 import BlockParser = require("./BlockParser");
 import LineType = require("./LineType");
+import fs = require("fs");
 
 function assertParse(a,b) {
   assert.deepEqual(JSON.parse(JSON.stringify(a)),b);
@@ -98,23 +99,45 @@ describe("BlockParser",() => {
   });
 
   describe("#readTextBlock",() => {
-    var readTextBlock = parserTest(BlockParser,"readTextBlock");
+    var readTextBlock = parserTest(BlockParser,"readTextBlock",{
+      assert: assertParse,
+      // show: true
+    });
 
-    it("joins consecutive text lines together",() => {
+    it("collect consecutive text lines together",() => {
       var text = "  abc\n  def\n  ghi";
-      var _ = readTextBlock(text,"abc\ndef\nghi",2);
+      var _ = readTextBlock(text,{
+        "name": "p",
+        "children": [
+          "abc",
+          "def",
+          "ghi"
+        ]
+      },2);
       assert.equal(_,"");
     });
 
     it("ends a text block on outdent",() => {
       var text = "  abc\n  def\nghi";
-      var _ = readTextBlock(text,"abc\ndef",2);
+      var _ = readTextBlock(text,{
+        "name": "p",
+        "children": [
+          "abc",
+          "def"
+        ]
+      },2);
       assert.equal(_,"ghi");
     });
 
     it("ends a text block on empty line",() => {
       var text = "  abc\n  def\n  \nghi";
-      var _ = readTextBlock(text,"abc\ndef",2);
+      var _ = readTextBlock(text,{
+        "name": "p",
+        "children": [
+          "abc",
+          "def"
+        ]
+      },2);
       assert.equal(_,"  \nghi");
     });
 
@@ -123,15 +146,15 @@ describe("BlockParser",() => {
       var _;
 
       text = "  abc\n  def\n  #tag";
-      _ = readTextBlock(text,"abc\ndef",2);
+      _ = readTextBlock(text,undefined,2);
       assert.equal(_,"  #tag");
 
       text = "  abc\n  def\n  ```";
-      _ = readTextBlock(text,"abc\ndef",2);
+      _ = readTextBlock(text,undefined,2);
       assert.equal(_,"  ```");
 
       text = '  abc\n  def\n  """';
-      _ = readTextBlock(text,"abc\ndef",2);
+      _ = readTextBlock(text,undefined,2);
       assert.equal(_,'  """');
     });
   });
@@ -238,6 +261,21 @@ describe("BlockParser",() => {
       });
     });
 
+    it("parses indented heredoc",() => {
+      var doc =
+`  \`\`\`
+  hello
+  world
+  \`\`\`
+`
+      parseCodeHeredoc(doc,{
+        "name": "```",
+        "children": [
+          "hello\nworld"
+        ]
+      },2);
+    });
+
     it("advances reader position",() => {
       var doc = "```HERE\ncontent\n```HERE\nmore";
       var _ = parseCodeHeredoc(doc,undefined);
@@ -290,8 +328,20 @@ describe("BlockParser",() => {
       parseTag(doc,{
         "name": "foo",
         "children": [
-          "first block\nof foo",
-          "second block\nof foo"
+          {
+            "name": "p",
+            "children": [
+              "first block",
+              "of foo"
+            ]
+          },
+          {
+            "name": "p",
+            "children": [
+              "second block",
+              "of foo"
+            ]
+          }
         ]
       },0);
     });
@@ -310,14 +360,29 @@ more content
       var _ = parseTag(doc,{
         "name": "foo",
         "children": [
-          "first block of foo",
+          {
+            "name": "p",
+            "children": [
+              "first block of foo"
+            ]
+          },
           {
             "name": "bar",
             "children": [
-              "content of bar"
+              {
+                "name": "p",
+                "children": [
+                  "content of bar"
+                ]
+              }
             ]
           },
-          "second block of foo"
+          {
+            "name": "p",
+            "children": [
+              "second block of foo"
+            ]
+          }
         ]
       },0);
 
@@ -344,14 +409,29 @@ more content
       var _ = parseTag(doc,{
         "name": "foo",
         "children": [
-          "first block of foo",
+          {
+            "name": "p",
+            "children": [
+              "first block of foo"
+            ]
+          },
           {
             "name": "bar",
             "children": [
-              "content of bar"
+              {
+                "name": "p",
+                "children": [
+                  "content of bar"
+                ]
+              }
             ]
           },
-          "second block of foo"
+          {
+            "name": "p",
+            "children": [
+              "second block of foo"
+            ]
+          }
         ]
       },0);
 
@@ -370,6 +450,20 @@ more content
           "c"
           ]
       });
+    });
+  });
+
+  describe("#parse",() => {
+    function parse(srcFile,astFile) {
+      var src = fs.readFileSync(srcFile,"utf8");
+      var ast = fs.readFileSync(astFile,"utf8");
+      var p = new BlockParser(src);
+      var result = p.parse();
+      assert.deepEqual(JSON.parse(result.json()),JSON.parse(ast))
+    }
+
+    it("parses a complete document",() => {
+      parse("./examples/simple.xmd","./examples/simple.xmd.json")
     });
   });
 });

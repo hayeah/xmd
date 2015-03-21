@@ -67,7 +67,11 @@ class BlockParser extends Reader {
     return {type: type, indent: indent};
   }
 
-  _parse(indent:number): Node[] {
+  parse(): Tag {
+    return new Tag("document",this._parse(0));
+  }
+
+  _parse(indent:number=0): Node[] {
     var nodes: Node[] = [];
 
     while(true) {
@@ -90,6 +94,15 @@ class BlockParser extends Reader {
         break;
       case LineType.tag:
         nodes.push(this.parseTag(indent));
+        break;
+      case LineType.hereString:
+        nodes.push(this.parseStringHeredoc(indent));
+        break;
+      case LineType.hereCode:
+        nodes.push(this.parseCodeHeredoc(indent));
+        break;
+      case LineType.empty:
+        // do nothing
         break;
       default:
         throw "unknown line type";
@@ -186,7 +199,7 @@ class BlockParser extends Reader {
     return indent;
   }
 
-  readTextBlock(indent:number): string {
+  readTextBlock(indent:number): Tag {
     var lines = [];
     while(true) {
       // Consume a line.
@@ -208,7 +221,7 @@ class BlockParser extends Reader {
       continue;
     }
 
-    return lines.join("\n");
+    return new Tag("p",lines);
   }
 
   /*
@@ -243,7 +256,7 @@ class BlockParser extends Reader {
    * Grammar: <code-heredoc(n)>
    */
   parseCodeHeredoc(indent:number=0): Tag {
-    return this.parseHeredoc("```");
+    return this.parseHeredoc("```",indent);
   }
 
   /*
@@ -252,7 +265,7 @@ class BlockParser extends Reader {
    * Grammar: <string-heredoc(n)>
    */
   parseStringHeredoc(indent:number=0): Tag {
-    return this.parseHeredoc('"""');
+    return this.parseHeredoc('"""',indent);
   }
 
   parseHeredoc(delimiter:string,indent:number=0): Tag {
