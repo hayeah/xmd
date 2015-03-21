@@ -56,12 +56,12 @@ class TextParser extends Reader {
     // parse tag
     this.want("[");
     // parse tag name
-    var tagName = this.readUpto("]");
+    var tagName = this.readSymbol();
     if(tagName == "") {
       throw "Inline tag cannot have empty name";
     }
-    // wantUntil((c) => { return c == " " || c == "]"});
-    // readSpaces();
+
+    var info = this.parseArguments();
     this.want("]");
 
     var nodes: Array<Node>;
@@ -74,7 +74,10 @@ class TextParser extends Reader {
       nodes = [];
     }
 
-    return new Tag(tagName,nodes)
+    var tag = new Tag(tagName,nodes);
+    tag.setInfo(info);
+
+    return tag;
   }
 
   /**

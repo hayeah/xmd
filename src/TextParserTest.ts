@@ -147,6 +147,22 @@ describe("TextParser",() => {
       });
     });
 
+    it("parses arguments",() => {
+      parseInlineTag("[foo a b=b c][content of foo]",{
+        "name": "foo",
+        "args": [
+          "a",
+          "c"
+        ],
+        "opts": {
+          "b": "b"
+        },
+        "children": [
+          "content of foo"
+        ]
+      });
+    });
+
     it("parses nesting tags recursively",() => {
       var tag =
 `
