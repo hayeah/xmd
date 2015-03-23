@@ -15,7 +15,7 @@
 <tag(n)> := <indent(n)> "#" <symbol> <tag-arguments>? <tag-body>?
 <tag-body> := <tag-inline-body> | <nl> <tag-indented-body>
 <tag-indented-body> := (<content(n+2)> | <empty-line>)?
-<tag-inline-body> := <text-line>
+<tag-inline-body> := <text-line> <nl>
 <tag-arguments> := "[" <arguments> "]"
 ```
 

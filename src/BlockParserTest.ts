@@ -309,6 +309,27 @@ describe("BlockParser",() => {
       });
     });
 
+    it("parses tag with inline content",() => {
+      parseTag("#foo *hello* _world_",{
+        "name": "foo",
+        "children": [
+          {
+            "name": "*",
+            "children": [
+              "hello"
+            ]
+          },
+          " ",
+          {
+            "name": "_",
+            "children": [
+              "world"
+            ]
+          }
+        ]
+      });
+    });
+
 
     it("parses tag that has content",() => {
       var doc =

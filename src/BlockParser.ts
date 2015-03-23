@@ -129,7 +129,12 @@ class BlockParser extends Reader {
     }
   }
 
-  parseTag(indent: number): Tag {
+  /**
+   * Parse and return a tag at specified indentation level.
+   *.
+   * Grammar: <tag(n)>
+   */
+  parseTag(indent: number=0): Tag {
     this.wantIndent(indent);
     this.want("#");
     // get tagname
@@ -143,10 +148,22 @@ class BlockParser extends Reader {
       this.want("]");
     }
 
-    if(this.ch == "\n") {
+    // skip white
+    this.readIf((c) => {return c == " "});
+
+    if(this.eof || this.ch == "\n") {
+      // tag with indented body
       this.read();
     } else {
-      // TODO tag inline content
+      // tag with inline content
+      var textLine = this.readIf((c) => {return c != "\n"});
+      var tp = new TextParser(textLine);
+      tag.children = tp.parse();
+      if(this.ch == "\n") {
+        this.read(); // consume the final newline.
+      }
+
+      return tag;
     }
 
 
