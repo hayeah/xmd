@@ -1,42 +1,56 @@
-Markdown is great if you can find a dialect that suits your needs precisely. But if you are not happy with how your dialect renders markdown into HTML, or if you need some feature that it doesn't support, then you are tempted to enter into a state of sin.
+Markdown is great if you can find a dialect that suits your needs precisely. But if you need some feature that it doesn't support, you are tempted to enter into a state of sin. You might try to:
 
-You might try to:
-
-1. Embed html in your Markdown.
+1. Embed XML in your Markdown.
 2. Have a fancy pre/post-process chain.
+3. Find another markdown dialect.
 
 Either of these makes me feel dirty.
 
-# Extensible Markdown
+Nor do I want to add more ad-hoc, nilly-willy extensions to Markdown.
 
-One way to think about markdown is that it is a dialect of XML that makes writing in it more pleasant. To create an extensible markdown dialect, all you need to do is to make its syntax regular enough that it can express arbitrary XML in it.
+One way to think about Markdown is that it is a dialect of XML that makes writing in it more pleasant. To create an extensible Markdown dialect, all you need to do is to make its syntax regular enough that it can express arbitrary XML in it.
+
+I want a Markdown dialect to have equivalent expressive power as XML. Something like a hybrid between HAML and Markdown.
+
+# Example
+
+A simple document looks very similar to markdown.
+
+    ```
+    # The Title
+
+    The _first_ paragraph of text
+    spans two lines.
+
+    The *second* paragraph of text
+    spans
+    three lines.
+
+    ## A `Subtitle`
+
+    #aside
+      Marginally interesting aside.
+
+      Also, see [> http://example.com][external link]
+
+    A code snippet:
+
+    ```[javascript theme=dark]
+    function() {
+      console.log("hello world");
+    }
+    ```
+
+
+Consecutive lines are joined together to form a paragraph.
+
+# Extensible Markdown
 
 The design criteria for this dialect are:
 
 + Minimal syntax that resembles markdown (not xml).
 + Well-defined escape and quoting mechanism.
 + Easy to attach metadata to content.
-
-# Examples
-
-A simple flat document looks just like markdown.
-
-```
-# The Title
-
-The _first_ paragraph of text
-spans two lines.
-
-The *second* paragraph of text
-spans
-three lines.
-
-## A `Subtitle`
-
-This is the final paragrah.
-```
-
-Consecutive lines are joined together to form a paragraph.
 
 ## Tag
 
