@@ -160,28 +160,29 @@ The design criteria for this dialect are:
 + Minimal syntax that resembles markdown (not xml).
 + Well-defined escape and quoting mechanism.
 + Easy to attach metadata to content.
++ Pure syntax. Plug in your own semantics and renderer.
 
 ## Tag
 
-We want to be able to express arbitrary XML tags. The character `#` actually opens a tag.
+We want to be able to express arbitrary XML tags. The character `#` opens a tag.
 
 ```
 #foo
 ```
 
-gets translated to:
+is translated to:
 
 ```
 <foo/>
 ```
 
-A single line of content can follow the tag opening.
+A single line of content can follow the tag opening,
 
 ```
 #foo a line of content
 ```
 
-gets translated to:
+is translated to:
 
 ```
 <foo>a line of content</foo>
@@ -226,7 +227,7 @@ We use indentation to structure the document. Content nested within a tag MUST b
   final paragraph of tag 1
 ```
 
-This gets translated to:
+is translated to:
 
 ```
 <tag1>
@@ -251,7 +252,7 @@ It's possible to specify tag attributes:
   content of tag
 ```
 
-gets translated to:
+is translated to:
 
 ```
 <tag a="1" b="2" c="3">
@@ -290,7 +291,6 @@ Arguments are stripped away when translated to XML. They are only useful when yo
 <tag k1="1" k2="2" k3="3"/>
 ```
 
-
 Note: That attributes MUST be on the same line. The following is illegal:
 
 ```
@@ -303,7 +303,7 @@ Note: That attributes MUST be on the same line. The following is illegal:
 
 # heredoc
 
-We use a tag argument to emulate how Github Flavored Markdown quote a snippet of code.
+We can use a tag argument to emulate how Github Flavored Markdown quotes a snippet of code.
 
 ```
 #```[javascript]
@@ -312,7 +312,7 @@ We use a tag argument to emulate how Github Flavored Markdown quote a snippet of
   }
 ```
 
-which gets translated to;
+is translated to:
 
 ```
 <pre><code lang="javascript">function foo() {
@@ -320,7 +320,7 @@ which gets translated to;
 }</code></pre>
 ```
 
-In fact, xmd has builtin syntax for this purpose:
+xmd has builtin syntax for this purpose:
 
     ```[javascript]
     function foo() {
@@ -328,9 +328,9 @@ In fact, xmd has builtin syntax for this purpose:
     }
     ```
 
-Aside from the language, you might want to specify the theme:
+Aside from the language, you might also want to specify the theme:
 
-    ```[javascript theme="dark"]
+    ```[javascript theme=dark]
     function foo() {
       console.log("foo");
     }
@@ -416,7 +416,7 @@ A piece of <code><b>bolded</b><i>AndItalicCode</i></b></code>
 
 ### Link
 
-We just use the inline-tag syntax for links.
+We use the inline-tag syntax for links.
 
 ```
 [> http://google.com][*The* Google]
@@ -427,9 +427,10 @@ Or omitting the content:
 ```
 [> http://google.com]
 ```
+
 ### No Nesting for * _ `
 
-Nesting of the followings is not allowed:
+It is not allowed to nesting the followings:
 
 +  `_`
 + <code>`</code>
@@ -453,7 +454,7 @@ If you really want italic bold, use inline-tag syntax:
 [*][_italic bold_]
 ```
 
-`*` and `_` can be terribly confusing when used nested.
+`*` and `_` can be terribly confusing when they are nested.
 
 ## Escape
 
@@ -511,3 +512,33 @@ The inline quote uses 2 backticks. The same LaTeX equation written as an inline-
 ```
 [latex][``E &= \frac{mc^2}{\sqrt{1-\frac{v^2}{c^2}}}``]
 ```
+
+# Parser & Transformers
+
+The xmd format is pure syntax. When the parser sees `*bold*` it sees a tag whose name is `*`, whose content is "bold". The AST output is:
+
+```
+{
+  name: "*",
+  children: ["bold"]
+}
+```
+
+How does `*` get translated to `b` before being output to XML? There is a transformer that walks the AST and replace each `*` with `b`. The xmd package provides a [default transformation](https://github.com/hayeah/xmd/blob/09a6bdee517e95bdb6219397667156c0f8bc9670/src/Xmd.ts#L43-L67):
+
+```
+"" => "h1"
+"#" => "h2"
+"##" => "h3"
+etc.
+"*" => "b"
+"_" => "i"
+"`" => "code"
+"```" => "<pre><code>"
+">" => a
+```
+
+You can implement your own AST transformer instead of using the default.
+
+
+
