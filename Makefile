@@ -15,3 +15,7 @@ test: js
 .PHONY: testw
 testw:
 	$(mocha) -w --reporter min
+
+.PHONY: wc
+wc:
+	find src -name \*.ts | xargs wc
