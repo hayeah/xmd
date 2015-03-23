@@ -26,12 +26,14 @@ describe("xmd",() => {
 
     it('transforms ``` code heredoc',() => {
       var tag = new Tag("```",["abc"]);
+      tag.args = ["foolang"];
       var pre = xmd2html(tag);
       assert.equal(pre.name,"pre");
       assert.equal(pre.children.length,1);
       var code = <Tag>pre.children[0];
       assert.equal(code.name,"code");
       assert.equal(code.children[0],"abc");
+      assert.equal(code.opts["lang"],"foolang");
     });
 
     it("transforms inline string quote to string",() => {

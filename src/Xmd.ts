@@ -70,7 +70,11 @@ export function xmd2html(doc: Tag): Tag {
           return new Tag("code",recur());
         }
         case "```": {
-          return new Tag("pre",[new Tag("code",recur())]);
+          var code = new Tag("code",recur());
+          if(node.args != null) {
+            code.opts = {lang: node.args[0]};
+          }
+          return new Tag("pre",[code]);
         }
         case "``":
         case "````": {
@@ -93,7 +97,9 @@ export function xmd2html(doc: Tag): Tag {
           return a;
         }
         default: {
-          return new Tag(node.name,recur());
+          var t = new Tag(node.name,recur());
+          t.opts = node.opts;
+          return t;
         }
       }
     }
