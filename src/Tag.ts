@@ -94,7 +94,7 @@ class Tag {
         output(node);
       } else {
         if(!pretty) {
-          output(`<${node.name}>`);
+          tagOpen(node);
           recur();
           output(`</${node.name}>`);
           return;
@@ -104,20 +104,21 @@ class Tag {
         if(node.children.length == 0) {
           output("\n");
           outputIndent(indent);
-          output(`<${node.name}/>`);
+          tagOpen(node);
+          output(`</${node.name}>`)
           return;
         }
         if(node.children.length == 1 &&  typeof node.children[0] === "string") {
           output("\n");
           outputIndent(indent);
-          output(`<${node.name}>`);
+          tagOpen(node);
           output(node.children);
           output(`</${node.name}>`);
         } else {
           var oldpretty = pretty;
           output("\n");
           outputIndent(indent);
-          output(`<${node.name}>`);
+          tagOpen(node);
           indent += indentSpaces;
           if(node.name === "p" || node.name === "pre") {
             pretty = false;
@@ -131,6 +132,16 @@ class Tag {
         }
       }
     });
+
+    function tagOpen(tag: Tag) {
+      output(`<${tag.name}`);
+      if(tag.opts != null) {
+        for (var k in tag.opts){
+          output(` ${k}=${JSON.stringify(tag.opts[k])}`);
+        }
+      }
+      output('>');
+    }
 
     function outputIndent(indent:number) {
       if(pretty && !stopindent && indent > 0) {
