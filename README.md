@@ -12,7 +12,7 @@ One way to think about Markdown is that it is a dialect of XML that makes writin
 
 I want a Markdown dialect to have equivalent expressive power as XML. Something like a hybrid between HAML and Markdown.
 
-# Example
+## Example
 
 A simple document looks very similar to markdown.
 
@@ -41,8 +41,117 @@ A simple document looks very similar to markdown.
     }
     ```
 
-
 Consecutive lines are joined together to form a paragraph.
+
+# Install
+
+From NPM,
+
+```
+npm install xmd
+```
+
+## Command line
+
+The command line tool can render an `.xmd` file to XML or JSON.
+
+```
+$ xmd --help
+Renders extensible markdown to xml (defualt) or json.
+
+  --ast           output parsed document in JSON
+  -j, --json      output JSON
+  -p, --pretty    pretty print the output
+  -h, --help      show help
+```
+
+By default it renders to XML:
+
+```
+$ xmd --pretty example.xmd
+<document>
+    <h1>The Title</h1>
+    <p>The <i>first</i> paragraph of text spans two lines.</p>
+    <p>The <b>second</b> paragraph of text spans three lines.</p>
+    <h2>
+        A
+        <code>Subtitle</code></h2>
+    <aside>
+        <p>Marginally interesting aside.</p>
+        <p>Also, see <a href="http://example.com">external link</a></p></aside>
+    <p>A code snippet:</p>
+    <pre><code lang="javascript">function() {
+  console.log("hello world");
+}</code></pre></document>
+```
+
+Or you can choose to output to JSON, which you can then process with another tool:
+
+```
+$ xmd --json --pretty examples/simple.xmd
+{
+    "name": "document",
+    "children": [
+        {
+            "name": "h1",
+            "children": [
+                "The Title"
+            ]
+        },
+// ...
+}
+```
+
+You can also print out the AST in JSON:
+
+```
+xmd --ast --pretty examples/simple.xmd
+{
+    "name": "document",
+    "children": [
+        {
+            "name": "",
+            "children": [
+                "The Title"
+            ]
+        },
+// ...
+}
+```
+
+## Use in code
+
+```javascript
+> var xmd = require("xmd")
+
+// xml output
+> xmd.renderXML("# hello *world*")
+'<document><h1>hello <b>world</b></h1></document>'
+
+// JSON output
+> xmd.renderJSON("# hello *world*")
+{
+  "name": "document",
+  "children": [
+    {
+      "name": "h1",
+      "children": [
+        "hello ",
+        {
+          "name": "b",
+          "children": [
+            "world"
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+// AST
+> xmd.renderJSON("# hello *world*",{raw: true})
+'{"name":"document","children":[{"name":"","children":["hello ",{"name":"*","children":["world"]}]}]}'
+```
 
 # Extensible Markdown
 
