@@ -83,24 +83,63 @@ class Tag {
     var pretty = opts.indent != null;
     var indentSpaces = opts.indent || 2;
     var indent = 0;
+    var stopindent = false;
     this.walk((node,recur) => {
       if(typeof node === 'string') {
+        if(pretty) {
+          output("\n");
+        }
+
+        outputIndent(indent);
         output(node);
       } else {
-        output(`<${node.name}>`);
-        indent += indentSpaces;
-        recur();
-        indent -= indentSpaces;
-        output(`</${node.name}>`)
+        if(!pretty) {
+          output(`<${node.name}>`);
+          recur();
+          output(`</${node.name}>`);
+          return;
+        }
+
+        // pretty mode
+        if(node.children.length == 0) {
+          output("\n");
+          outputIndent(indent);
+          output(`<${node.name}/>`);
+          return;
+        }
+        if(node.children.length == 1 &&  typeof node.children[0] === "string") {
+          output("\n");
+          outputIndent(indent);
+          output(`<${node.name}>`);
+          output(node.children);
+          output(`</${node.name}>`);
+        } else {
+          var oldpretty = pretty;
+          output("\n");
+          outputIndent(indent);
+          output(`<${node.name}>`);
+          indent += indentSpaces;
+          if(node.name === "p") {
+            pretty = false;
+          }
+          recur();
+          if(node.name === "p") {
+            pretty = oldpretty;
+          }
+          indent -= indentSpaces;
+          output(`</${node.name}>`)
+        }
       }
     });
 
-    function output(str) {
-      if(pretty && indent > 0) {
+    function outputIndent(indent:number) {
+      if(pretty && !stopindent && indent > 0) {
         xml += spaces.substr(0,indent);
       }
+    }
+
+    function output(str) {
       xml += str;
-      xml += "\n"
     }
     return xml;
   }
