@@ -8,14 +8,19 @@
             ]
         },
         {
-            "name": "code",
+            "name": "```",
             "children": [
                 "piece of\n  code\n    yo"
             ]
         },
-        "piece of text yo",
         {
-            "name": "h1",
+            "name": "````",
+            "children": [
+                "piece of text yo"
+            ]
+        },
+        {
+            "name": "",
             "children": [
                 "content of this tag"
             ]
@@ -58,11 +63,25 @@
                     ]
                 },
                 {
-                    "name": "code",
+                    "name": "```",
                     "children": [
                         "```\n  HERE\n```"
+                    ],
+                    "opts": {
+                        "b": "b"
+                    },
+                    "args": [
+                        "foolang",
+                        "c"
                     ]
                 }
+            ],
+            "opts": {
+                "b": "b"
+            },
+            "args": [
+                "a",
+                "c"
             ]
         },
         {

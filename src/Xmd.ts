@@ -66,9 +66,11 @@ export function xmd2html(doc: Tag): Tag {
          return new Tag("i",recur());
         }
 
-        case "`":
+        case "`": {
+          return new Tag("code",recur());
+        }
         case "```": {
-         return new Tag("code",recur());
+          return new Tag("pre",[new Tag("code",recur())]);
         }
         case "``":
         case "````": {

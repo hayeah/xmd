@@ -22,7 +22,16 @@ describe("xmd",() => {
       tagname("*","b");
       tagname("_","i");
       tagname("`","code");
-      tagname("```","code");
+    });
+
+    it('transforms ``` code heredoc',() => {
+      var tag = new Tag("```",["abc"]);
+      var pre = xmd2html(tag);
+      assert.equal(pre.name,"pre");
+      assert.equal(pre.children.length,1);
+      var code = <Tag>pre.children[0];
+      assert.equal(code.name,"code");
+      assert.equal(code.children[0],"abc");
     });
 
     it("transforms inline string quote to string",() => {

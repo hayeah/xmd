@@ -119,11 +119,11 @@ class Tag {
           outputIndent(indent);
           output(`<${node.name}>`);
           indent += indentSpaces;
-          if(node.name === "p") {
+          if(node.name === "p" || node.name === "pre") {
             pretty = false;
           }
           recur();
-          if(node.name === "p") {
+          if(node.name === "p" || node.name === "pre") {
             pretty = oldpretty;
           }
           indent -= indentSpaces;
