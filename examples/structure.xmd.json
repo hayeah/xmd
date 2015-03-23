@@ -1,0 +1,79 @@
+{
+    "name": "document",
+    "children": [
+        {
+            "name": "p",
+            "children": [
+                "text block numero 1"
+            ]
+        },
+        {
+            "name": "code",
+            "children": [
+                "piece of\n  code\n    yo"
+            ]
+        },
+        "piece of text yo",
+        {
+            "name": "h1",
+            "children": [
+                "content of this tag"
+            ]
+        },
+        {
+            "name": "tag",
+            "children": [
+                "fofo"
+            ]
+        },
+        {
+            "name": "tag1",
+            "children": [
+                {
+                    "name": "p",
+                    "children": [
+                        "content of tag 1"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "tag2",
+            "children": [
+                {
+                    "name": "p",
+                    "children": [
+                        "content of tag 2"
+                    ]
+                },
+                {
+                    "name": "tag2a",
+                    "children": [
+                        {
+                            "name": "p",
+                            "children": [
+                                "nested tag"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "code",
+                    "children": [
+                        "```\n  HERE\n```"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "tag3",
+            "children": []
+        },
+        {
+            "name": "p",
+            "children": [
+                "final text block"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,34 @@
+text block
+numero 1
+
+```
+piece of
+  code
+    yo
+```
+
+````
+piece of text yo
+````
+
+# content of this tag
+
+#tag[] fofo
+
+#tag1[]
+  content of tag 1
+
+#tag2[a b=b c]
+  content of tag 2
+
+  #tag2a
+    nested tag
+
+  ```[foolang b=b c]HERE
+  ```
+    HERE
+  ```
+  ```HERE
+#tag3
+final text
+block

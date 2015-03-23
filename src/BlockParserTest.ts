@@ -478,7 +478,7 @@ more content
     }
 
     it("parses a complete document",() => {
-      parse("./examples/simple.xmd","./examples/simple.xmd.json")
+      parse("./examples/structure.xmd","./examples/structure.xmd.json")
     });
   });
 });
