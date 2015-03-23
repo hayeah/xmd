@@ -1,0 +1,23 @@
+# The Title
+
+The _first_ paragraph of text
+spans two lines.
+
+The *second* paragraph of text
+spans
+three lines.
+
+## A `Subtitle`
+
+#aside
+  Marginally interesting aside.
+
+  Also, see [> http://example.com][external link]
+
+A code snippet:
+
+```[javascript theme=dark]
+function() {
+  console.log("hello world");
+}
+```
