@@ -44,7 +44,7 @@ function main() {
       "j": ["json"],
       "p": ["pretty"]
     },
-    boolean: ["ast"]
+    boolean: ["ast","json","pretty"]
   });
 
   if(args.h || args.help) {
