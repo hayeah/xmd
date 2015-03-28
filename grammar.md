@@ -6,6 +6,7 @@
 ```
 <content(n)> :=
     <tag(n)> |
+    <list(n)> |
     <text-block(n)> |
     <code-heredoc(n)> |
     <string-heredoc(n)> |
@@ -13,10 +14,18 @@
 ```
 
 ```
-<tag(n)> := <indent(n)> "#" <symbol> <tag-arguments>? <tag-inline-body>? <nl>
+<tag(n)> := <indent(n)> "#" <tag-def>
+<tag-def> := <symbol> <tag-arguments>? <tag-inline-body>? <nl>
     <content(n+2)>?
 <tag-inline-body> := <text-line>
 <tag-arguments> := "[" <arguments> "]"
+```
+
+A list item ends with anything that's not a list item. The items may not have empty lines between them. The `?!` notation means "it's not a list item", and it's a non-consuming look-ahead.
+
+```
+<list(n)> := (<list-item(n)> | <empty-line>)+ ?!<list-item(n)>
+<list-item(n)> := <indent(n)> "+" <tag-def>
 ```
 
 ```

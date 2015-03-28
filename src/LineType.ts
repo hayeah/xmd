@@ -5,4 +5,5 @@ enum LineType {
   hereCode,
   text,
   tag,
+  listItem,
 }

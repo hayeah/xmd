@@ -80,6 +80,30 @@ export function xmd2html(doc: Tag): Tag {
         case "````": {
          return node.children[0];
         }
+        case "list": {
+          // look at the first list item to decide whether list should be ul or ol
+          var li = <Tag> node.children[0];
+          if(li == null) {
+            return new Tag("ul");
+          }
+
+          var listTagName: string;
+          if (li.name == "+") {
+            if(li.args && li.args[0] === "1") {
+                listTagName = "ol";
+            } else {
+              listTagName = "ul";
+            }
+          } else {
+            listTagName = "list";
+          }
+
+          return new Tag(listTagName,recur());
+        }
+        case "+": {
+          return new Tag("li",recur());
+        }
+
         // [> http://google.com]
         // [> http://google.com][The Google]
         case ">": {

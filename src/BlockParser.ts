@@ -56,6 +56,10 @@ class BlockParser extends Reader {
         type = LineType.tag;
       }
 
+      if(c == "+") {
+        type = LineType.listItem;
+      }
+
       if(c == "`") {
         if(this.src.substr(i,3) == "```") {
           if(this.src[i+3] === "`") { // ````
@@ -98,6 +102,9 @@ class BlockParser extends Reader {
       case LineType.tag:
         nodes.push(this.parseTag(indent));
         break;
+      case LineType.listItem:
+        nodes.push(this.parseList(indent));
+        break;
       case LineType.hereString:
         nodes.push(this.parseStringHeredoc(indent));
         break;
@@ -130,16 +137,48 @@ class BlockParser extends Reader {
   }
 
   /**
-   * Parse and return a tag at specified indentation level.
-   *.
-   * Grammar: <tag(n)> :=
-   *    <indent(n)> "#" <symbol> <tag-arguments>? <tag-inline-body>? <nl>
-   *      <tag-indented-body(n)>?
+   * Parse a list of items. A list is a sequence of tags started
+   * with `+`, and not broken by anything that's not a list item.
+   *
+   * Grammar: <list(n)>
    */
-  parseTag(indent: number=0): Tag {
-    this.wantIndent(indent); // indent(n)
-    this.want("#");
+  parseList(indent: number=0): Tag {
+    var items: Tag[] = [];
 
+    while(true) {
+      var info = this.lineInfo();
+      if(this.eof) {
+        break;
+      }
+
+      if(info.indent != indent) {
+        break;
+      }
+
+      if(info.type != LineType.listItem) {
+        break;
+      }
+
+      this.wantIndent(indent);
+      this.want("+");
+
+      var item = this.parseTagDef(indent);
+      item.name = "+" + item.name;
+      items.push(item);
+
+      this.skipEmptyLines();
+    }
+
+    var list = new Tag("list",items)
+
+    return list;
+  }
+
+  /**
+   * Parses the tag name, argument, and content. A grammar shared by tag and list-item.
+   * Grammar: <tag-def>
+   */
+  parseTagDef(indent: number=0): Tag {
     // Grammar: <symbol>
     var tagName = this.readSymbol();
     var tag = new Tag(tagName);
@@ -185,6 +224,20 @@ class BlockParser extends Reader {
     }
 
     return tag;
+  }
+
+  /**
+   * Parse and return a tag at specified indentation level.
+   *.
+   * Grammar: <tag(n)> :=
+   *    <indent(n)> "#" <symbol> <tag-arguments>? <tag-inline-body>? <nl>
+   *      <tag-indented-body(n)>?
+   */
+  parseTag(indent: number=0): Tag {
+    this.wantIndent(indent); // indent(n)
+    this.want("#");
+
+    return this.parseTagDef(indent);
   }
 
   /**

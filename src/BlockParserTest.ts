@@ -498,6 +498,102 @@ more content
     });
   });
 
+  describe("#parseList",() => {
+    var parseList = parserTest(BlockParser,"parseList",{
+      // show: true,
+      assert: assertParse,
+    });
+
+    it("parses list of items",() => {
+      var doc =
+`
++1 a
++2 b
+foo
+`.trim()
+      var _ = parseList(doc,{
+        "name": "list",
+        "children": [
+          {
+            "name": "+1",
+            "children": [
+              "a"
+            ]
+          },
+          {
+            "name": "+2",
+            "children": [
+              "b"
+            ]
+          }
+        ]
+      });
+      assert.equal(_,"foo");
+    });
+
+    it("parses nested list",() => {
+      var doc =
+`+ a
+  +1 a1
+  +2 a2
++ b
+  + bb
+  + b b
+`
+      parseList(doc,{
+        "name": "list",
+        "children": [
+          {
+            "name": "+",
+            "children": [
+              "a",
+              {
+                "name": "list",
+                "children": [
+                  {
+                    "name": "+1",
+                    "children": [
+                      "a1"
+                    ]
+                  },
+                  {
+                    "name": "+2",
+                    "children": [
+                      "a2"
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "+",
+            "children": [
+              "b",
+              {
+                "name": "list",
+                "children": [
+                  {
+                    "name": "+",
+                    "children": [
+                      "bb"
+                    ]
+                  },
+                  {
+                    "name": "+",
+                    "children": [
+                      "b b"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      });
+    });
+  });
+
   describe("#parse",() => {
     function parse(srcFile,astFile) {
       var src = fs.readFileSync(srcFile,"utf8");
