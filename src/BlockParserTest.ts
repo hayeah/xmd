@@ -466,6 +466,36 @@ more content
           ]
       });
     });
+
+    it("parses tag that has both inline content and indented body",() =>{
+      var doc =
+`#foo inline text
+  first block
+  of foo
+
+  second block
+  of foo
+`
+      parseTag(doc,{
+        "name": "foo",
+        "children": [
+          "inline text",
+          {
+            "name": "p",
+            "children": [
+              "first block of foo"
+            ]
+          },
+          {
+            "name": "p",
+            "children": [
+              "second block of foo"
+            ]
+          }
+        ]
+      });
+
+    });
   });
 
   describe("#parse",() => {

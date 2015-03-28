@@ -132,15 +132,19 @@ class BlockParser extends Reader {
   /**
    * Parse and return a tag at specified indentation level.
    *.
-   * Grammar: <tag(n)>
+   * Grammar: <tag(n)> :=
+   *    <indent(n)> "#" <symbol> <tag-arguments>? <tag-inline-body>? <nl>
+   *      <tag-indented-body(n)>?
    */
   parseTag(indent: number=0): Tag {
-    this.wantIndent(indent);
+    this.wantIndent(indent); // indent(n)
     this.want("#");
-    // get tagname
+
+    // Grammar: <symbol>
     var tagName = this.readSymbol();
     var tag = new Tag(tagName);
 
+    // Grammar: <tag-arguments>?
     if(this.ch == "[") {
       this.want("[");
       var args = this.parseArguments();
@@ -148,26 +152,19 @@ class BlockParser extends Reader {
       this.want("]");
     }
 
-    // skip white
-    this.readIf((c) => {return c == " "});
-
-    if(this.eof || this.ch == "\n") {
-      // tag with indented body
-      this.read();
-    } else {
-      // tag with inline content
-      var textLine = this.readIf((c) => {return c != "\n"});
+    // Grammar: <tag-inline-body>? <nl>
+    var textLine = this.readIf((c) => {return c != "\n"}).trim();
+    if(textLine != "") {
       var tp = new TextParser(textLine);
       tag.children = tp.parse();
-      if(this.ch == "\n") {
-        this.read(); // consume the final newline.
-      }
+    }
 
-      return tag;
+    if(this.ch == "\n") {
+      this.read();
     }
 
 
-
+    // Grammar: <tag-indented-body>?
     this.skipEmptyLines();
     if(this.eof) {
       return tag;
@@ -175,12 +172,18 @@ class BlockParser extends Reader {
 
     var info = this.lineInfo();
 
+
     if(info.indent != indent + 2) {
+      // Detected indentation not belonging to this tag.
       return tag;
     }
 
     // parse recursively
-    tag.children = this._parse(indent + 2);
+    var body = this._parse(indent + 2);
+    if(body.length > 0) {
+      Array.prototype.push.apply(tag.children,body);
+    }
+
     return tag;
   }
 
