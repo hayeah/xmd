@@ -213,34 +213,76 @@ In fact, the tag `#` that stands for `h1` is actually a tag whose name is empty!
 We use indentation to structure the document. Content nested within a tag MUST be indented with 2 spaces.
 
 ```
-#tag1
-  paragraph of tag 1
-
-  #tag2
-    paragraph of tag 2
-
-    #tag3
-      paragraph of tag 3
-
-    final paragraph of tag 2
-
-  final paragraph of tag 1
+#tag1 content of tag 1
+  #tag2 content of tag 2
+    #tag3 content of tag 3
 ```
 
 is translated to:
 
 ```
 <tag1>
-  paragraph of tag 1
+  content of tag 1
   <tag2>
-    paragraph of tag 2
-    <tag3>
-      paragraph of tag 3
-    </tag3>
-    final paragraph of tag 2
-  </tag2>
-  final paragraph of tag 1
-</tag1>
+    content of tag 2
+    <tag3>content of tag 3</tag3></tag2></tag1>
+```
+
+## Paragraphs
+
+Lines of of text are joined together to form a paragraph. The content of a paragraph would be wrapped in a `p`.
+
+```
+The first text block
+has a *bolded* word.
+
+The second text block
+has an _italic_ word.
+```
+
+is translated to:
+
+```
+<p>The first text block has a <b>bolded</b> word.</p>
+<p>The second text block has an <i>italic</i> word.</p>
+```
+
+This works in the indented body of a tag.
+
+```
+#tag1
+  first paragraph of tag 1
+
+  #tag2
+    content of tag 2
+
+  second paragraph of tag 1
+```
+
+is translated to:
+
+```
+<tag1>
+  <p>first paragraph of tag 1</p>
+  <tag2>
+      <p>content of tag 2</p></tag2>
+  <p>second paragraph of tag 1</p></tag1>
+```
+
+Note the difference between the following two tags:
+
+```
+#tag1 a line of content
+
+#tag2
+  a paragraph of content
+```
+
+In this case, tag1's content isn't wrapped in a `p`, but tag2's content is:
+
+```
+<tag1>a line of content</tag1>
+<tag2><p>a paragraph of content</p></tag2>
 ```
 
 ## Tag Attributes
