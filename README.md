@@ -555,6 +555,156 @@ The inline quote uses 2 backticks. The same LaTeX equation written as an inline-
 [latex][``E &= \frac{mc^2}{\sqrt{1-\frac{v^2}{c^2}}}``]
 ```
 
+# List
+
+(Provisional syntax. Could change in the future.)
+
+An unordered list looks like its markdown counterpart.
+
+```
++ a
++ b
++ c
+```
+
+Nesting works.
+
+```
++ a
+  + a1
+  + a2
++ b
+  + b1
+  + b2
+```
+
+is translated to:
+
+```
+<ul>
+  <li>
+      a
+      <ul>
+          <li>a1</li>
+          <li>a2</li></ul></li>
+  <li>
+      b
+      <ul>
+          <li>b1</li>
+          <li>b2</li></ul></li>
+```
+
+Consecutive list items are collected into the same list, even if separated by empty-lines.
+
+```
++ a
++ b
+
+
++ c
+```
+
+is the same as
+
+```
++ a
++ b
++ c
+```
+
+Any element that's not a list item would separate the items into two lists:
+
+```
+Fruits:
+
++ apple
++ orange
++ bannana
+
+Animals:
+
++ monkey
++ chicken
++ rat
+```
+
+### Numbered List
+
+You can supply arguments for list items. To generate a numbered list (i.e. `ol`), assign numbers to the items as arguments. The number MUST start with 1.
+
+```
++[1] first item
++[2] second item
++[3] third item
+```
+
+is translated to:
+
+```
+<ol>
+<li>first item</li>
+<li>second item</li>
+<li>third item</li></ol>
+```
+
+The AST transformer only looks at the first list item. If the first argument of the first list item is `1` then the list is an `ol`, otherwise it's an `ul`. So we can omit all arguments except for the first list item:
+
+```
++[1] first item
++ second item
++ third item
+```
+
+### Generalized List
+
+Like a tag, a list item can have a tag name, arguments, and content. An custom list might look like:
+
+```
++foo[1 2 3 a=1 b=c d=e]
+  first item of foo
++ second item of foo
+```
+
+The AST for this list is:
+
+```
+{
+    "name": "list",
+    "children": [
+        {
+            "name": "+foo",
+            "children": [
+                {
+                    "name": "p",
+                    "children": [
+                        "first item of foo"
+                    ]
+                }
+            ],
+            "opts": {
+                "a": "1",
+                "b": "c",
+                "d": "e"
+            },
+            "args": [
+                "1",
+                "2",
+                "3"
+            ]
+        },
+        {
+            "name": "+",
+            "children": [
+                "second item of foo"
+            ]
+        }
+    ]
+}
+```
+
+You need to write your own transformer to transform this list into valid XML.
+
+
 # Parser & Transformers
 
 The xmd format is pure syntax. When the parser sees `*bold*` it sees a tag whose name is `*`, whose content is "bold". The AST output is:
