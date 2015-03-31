@@ -1,6 +1,6 @@
 {
   "name": "xmd",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "extensible markdown",
   "main": "lib/Xmd.js",
   "scripts": {
