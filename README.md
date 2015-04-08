@@ -732,5 +732,6 @@ etc.
 
 You can implement your own AST transformer instead of using the default.
 
+# Other Tools
 
-
+XMD isn't compatible with markdown, but it's quite close. I have written a simple converter from markdown to xmarkdown: [hayeah/md2xmd](https://github.com/hayeah/md2xmd)
